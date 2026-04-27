@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogos — Tecno Stikers</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">🏷️</span>
+        <span class="logo-text"><a href="index.html">Tecno<strong>Stikers</strong></a></span>
+      </div>
+      <nav>
+        <a href="index.html" class="nav-link">Inicio</a>
+        <a href="catalogo.html" class="nav-link active">Catálogos</a>
+        <a href="index.html#contacto" class="nav-link">Contacto</a>
+      </nav>
+      <button class="cart-btn" onclick="abrirCarrito()">
+        🛒 Carrito <span class="cart-count" id="cart-count">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="page-hero">
+    <h1 id="page-title">Catálogos de Stikers</h1>
+    <p id="page-subtitle">Elegí tus stikers favoritos y agregalos al carrito</p>
+  </section>
+
+  <!-- BANNER PERSONALIZADOS -->
+  <div class="banner-personalizados">
+    <div class="banner-pers-inner">
+      <span class="banner-pers-icon">🎨</span>
+      <div class="banner-pers-texto">
+        <strong>¿Querés un stiker único?</strong>
+        <span>Para personalizados hacé click acá</span>
+      </div>
+      <a href="https://wa.me/5491124575207?text=%C2%A1Hola!%20Quiero%20hacer%20un%20stiker%20personalizado.%20%C2%BFMe%20pod%C3%A9s%20dar%20m%C3%A1s%20info%3F"
+         class="btn-personalizados" target="_blank">
+        Personalizar ahora 👉
+      </a>
+    </div>
+  </div>
+
+  <!-- BOTONES FILTRO TEMAS -->
+  <div class="temas-nav" id="temas-nav"></div>
+
+  <!-- SPINNER CARGA -->
+  <div id="loading-spinner" style="display:none">
+    <div class="spinner-dot"></div>
+    <div class="spinner-dot"></div>
+    <div class="spinner-dot"></div>
+  </div>
+
+  <!-- GRILLA DE STIKERS -->
+  <section class="catalogo-section">
+    <h2 id="section-title">Todos los stikers</h2>
+    <div class="stikers-grid" id="stikers-grid"></div>
+  </section>
+
+  <!-- MODAL SELECTOR MATERIAL / TAMAÑO -->
+  <div class="modal-overlay" id="modal-overlay" onclick="cerrarModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="cerrarModal()">✕</button>
+      <div class="modal-emoji" id="modal-emoji"></div>
+      <h3 class="modal-nombre" id="modal-nombre"></h3>
+      <p class="modal-cat" id="modal-cat"></p>
+
+      <div class="modal-opciones">
+        <div class="opcion-grupo">
+          <label class="opcion-label">Material:</label>
+          <div class="opcion-btns" id="material-btns">
+            <button class="opcion-btn active" data-material="comun"  onclick="seleccionarMaterial('comun')">Común</button>
+            <button class="opcion-btn"        data-material="vinilo" onclick="seleccionarMaterial('vinilo')">Vinilo</button>
+          </div>
+        </div>
+
+        <div class="opcion-grupo">
+          <label class="opcion-label">Tamaño (cm):</label>
+          <div class="opcion-btns" id="tamanio-btns">
+            <button class="opcion-btn active" data-tamanio="4x4" onclick="seleccionarTamanio('4x4')">4×4</button>
+            <button class="opcion-btn"        data-tamanio="5x5" onclick="seleccionarTamanio('5x5')">5×5</button>
+            <button class="opcion-btn"        data-tamanio="6x6" onclick="seleccionarTamanio('6x6')">6×6</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-precio-wrap">
+        <span class="modal-precio-label">Precio:</span>
+        <span class="modal-precio" id="modal-precio">$111</span>
+      </div>
+
+      <button class="btn-modal-agregar" id="btn-modal-agregar" onclick="confirmarAgregarAlCarrito()">
+        + Agregar al carrito
+      </button>
+    </div>
+  </div>
+
+  <!-- PANEL CARRITO -->
+  <div class="cart-overlay" id="cart-overlay" onclick="cerrarCarrito()"></div>
+  <div class="cart-panel" id="cart-panel">
+    <div class="cart-header">
+      <h3>🛒 Tu Carrito</h3>
+      <button onclick="cerrarCarrito()" class="close-btn">✕</button>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <p class="cart-empty">Tu carrito está vacío</p>
+    </div>
+    <div class="cart-footer" id="cart-footer" style="display:none">
+      <div class="cart-total">Total: <strong id="cart-total">$0</strong></div>
+      <button class="btn-checkout" onclick="checkout()">Finalizar Pedido por WhatsApp 📱</button>
+    </div>
+  </div>
+
+  <script src="datos-stikers.js"></script>
+  <script src="sheets-loader.js"></script>
+  <script src="carrito.js"></script>
+  <script>
+    let temaActual = null;
+    let modalStiker = null;
+    let modalMaterial = 'comun';
+    let modalTamanio = '4x4';
+
+    // ---- INIT ----
+    async function init() {
+      mostrarSpinner(true);
+      await cargarDatosDeSheets();
+      mostrarSpinner(false);
+
+      const params = new URLSearchParams(window.location.search);
+      const temaParam = params.get('tema');
+
+      const nav = document.getElementById('temas-nav');
+      nav.innerHTML = '';
+      const btnTodos = document.createElement('button');
+      btnTodos.className = 'tema-btn';
+      btnTodos.textContent = '🏷️ Todos';
+      btnTodos.onclick = () => mostrarTema(null);
+      nav.appendChild(btnTodos);
+
+      Object.keys(catalogos).forEach(key => {
+        const cat = catalogos[key];
+        const btn = document.createElement('button');
+        btn.className = 'tema-btn';
+        btn.textContent = cat.emoji + ' ' + cat.nombre;
+        btn.dataset.tema = key;
+        btn.onclick = () => mostrarTema(key);
+        nav.appendChild(btn);
+      });
+
+      if (temaParam && catalogos[temaParam]) {
+        mostrarTema(temaParam);
+      } else {
+        mostrarTema(null);
+      }
+    }
+
+    function mostrarSpinner(visible) {
+      document.getElementById('loading-spinner').style.display = visible ? 'flex' : 'none';
+    }
+
+    function mostrarTema(tema) {
+      temaActual = tema;
+
+      document.querySelectorAll('.tema-btn').forEach(btn => {
+        if (tema === null) {
+          btn.classList.toggle('active', btn.textContent.includes('Todos'));
+        } else {
+          btn.classList.toggle('active', btn.dataset.tema === tema);
+        }
+      });
+
+      const titulo = tema ? catalogos[tema].nombre : 'Todos los stikers';
+      document.getElementById('section-title').textContent = titulo;
+
+      if (tema) {
+        document.getElementById('page-title').textContent = catalogos[tema].nombre;
+        document.getElementById('page-subtitle').textContent =
+          `${catalogos[tema].stikers.length} stikers disponibles — elegí los tuyos`;
+      } else {
+        document.getElementById('page-title').textContent = 'Catálogos de Stikers';
+        document.getElementById('page-subtitle').textContent =
+          'Elegí tus stikers favoritos y agregalos al carrito';
+      }
+
+      renderizarStikers(tema);
+
+      const newUrl = tema ? `catalogo.html?tema=${tema}` : 'catalogo.html';
+      history.replaceState(null, '', newUrl);
+    }
+
+    function renderizarStikers(tema) {
+      const grid = document.getElementById('stikers-grid');
+      grid.innerHTML = '';
+
+      const temas = tema ? [tema] : Object.keys(catalogos);
+      const precioDesde = PRECIOS.comun['4x4'];
+
+      temas.forEach(key => {
+        const cat = catalogos[key];
+        cat.stikers.forEach((stiker, idx) => {
+          const enCarrito = carrito.some(i => i.id.startsWith(stiker.id + '_'));
+          const card = document.createElement('div');
+          card.className = 'stiker-card' + (enCarrito ? ' en-carrito' : '');
+          card.id = 'card-' + stiker.id;
+
+          const catLabel = tema ? '' :
+            `<div class="stiker-cat-label">${cat.nombre}</div>`;
+
+          const imgHtml = stiker.imagen
+            ? `<img class="stiker-img" src="${stiker.imagen}" alt="${stiker.nombre}" onerror="this.outerHTML='<div class=\\'stiker-emoji\\'>${stiker.emoji}</div>'">`
+            : `<div class="stiker-emoji">${stiker.emoji}</div>`;
+
+          card.innerHTML = `
+            <span class="stiker-num">#${idx + 1}</span>
+            ${imgHtml}
+            ${catLabel}
+            <div class="stiker-name">${stiker.nombre}</div>
+            <div class="stiker-precio">desde $${precioDesde}</div>
+            <button
+              class="btn-agregar${enCarrito ? ' added' : ''}"
+              id="btn-${stiker.id}"
+              onclick="abrirModalStiker('${stiker.id}','${stiker.nombre.replace(/'/g,"\\'")}','${stiker.emoji}','${cat.nombre.replace(/'/g,"\\'")}','${(stiker.imagen||'').replace(/'/g,"\\'")}')"
+            >
+              ${enCarrito ? '✅ En carrito' : '+ Elegir opciones'}
+            </button>
+          `;
+          grid.appendChild(card);
+        });
+      });
+    }
+
+    function actualizarBotonesGrilla() {
+      document.querySelectorAll('.stiker-card').forEach(card => {
+        const id = card.id.replace('card-', '');
+        const enCarrito = carrito.some(i => i.id.startsWith(id + '_'));
+        const btn = document.getElementById('btn-' + id);
+        if (btn) {
+          btn.textContent = enCarrito ? '✅ En carrito' : '+ Elegir opciones';
+          btn.className = 'btn-agregar' + (enCarrito ? ' added' : '');
+        }
+        card.className = 'stiker-card' + (enCarrito ? ' en-carrito' : '');
+      });
+    }
+
+    // ---- MODAL ----
+    function abrirModalStiker(id, nombre, emoji, catalogoNombre, imagen = '') {
+      modalStiker = { id, nombre, emoji, catalogo: catalogoNombre, imagen };
+      modalMaterial = 'comun';
+      modalTamanio  = '4x4';
+
+      const emojiEl = document.getElementById('modal-emoji');
+      if (imagen) {
+        emojiEl.innerHTML = `<img class="modal-img" src="${imagen}" alt="${nombre}" onerror="this.outerHTML='${emoji}'">`;
+      } else {
+        emojiEl.textContent = emoji;
+      }
+      document.getElementById('modal-nombre').textContent = nombre;
+      document.getElementById('modal-cat').textContent    = catalogoNombre;
+
+      actualizarModalPrecio();
+      actualizarBotonesModal();
+
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+    }
+
+    function seleccionarMaterial(material) {
+      modalMaterial = material;
+      actualizarModalPrecio();
+      actualizarBotonesModal();
+    }
+
+    function seleccionarTamanio(tamanio) {
+      modalTamanio = tamanio;
+      actualizarModalPrecio();
+      actualizarBotonesModal();
+    }
+
+    function actualizarModalPrecio() {
+      const precio = PRECIOS[modalMaterial][modalTamanio];
+      document.getElementById('modal-precio').textContent = '$' + precio;
+    }
+
+    function actualizarBotonesModal() {
+      document.querySelectorAll('#material-btns .opcion-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.material === modalMaterial);
+      });
+      document.querySelectorAll('#tamanio-btns .opcion-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tamanio === modalTamanio);
+      });
+
+      const compositeId = `${modalStiker.id}_${modalMaterial}_${modalTamanio}`;
+      const enCarrito = carrito.find(i => i.id === compositeId);
+      const btn = document.getElementById('btn-modal-agregar');
+      if (enCarrito) {
+        btn.textContent = '✅ Ya está en el carrito';
+        btn.classList.add('added');
+      } else {
+        btn.textContent = '+ Agregar al carrito';
+        btn.classList.remove('added');
+      }
+    }
+
+    function confirmarAgregarAlCarrito() {
+      const compositeId = `${modalStiker.id}_${modalMaterial}_${modalTamanio}`;
+      const enCarrito = carrito.find(i => i.id === compositeId);
+
+      if (enCarrito) {
+        const idx = carrito.findIndex(i => i.id === compositeId);
+        carrito.splice(idx, 1);
+        guardarCarrito();
+        mostrarToast('❌ ' + modalStiker.nombre + ' quitado');
+      } else {
+        const precio = PRECIOS[modalMaterial][modalTamanio];
+        const materialLabel = modalMaterial === 'comun' ? 'Común' : 'Vinilo';
+        agregarAlCarrito(
+          compositeId,
+          modalStiker.nombre,
+          modalStiker.emoji,
+          modalStiker.catalogo,
+          precio,
+          materialLabel,
+          modalTamanio,
+          modalStiker.imagen
+        );
+      }
+
+      actualizarBotonesModal();
+      actualizarBotonesGrilla();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

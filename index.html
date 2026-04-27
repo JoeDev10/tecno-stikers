@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tecno Stikers - Stikers Personalizados</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">🏷️</span>
+        <span class="logo-text">Tecno<strong>Stikers</strong></span>
+      </div>
+      <nav>
+        <a href="index.html" class="nav-link active">Inicio</a>
+        <a href="catalogo.html" class="nav-link">Catálogos</a>
+        <a href="#contacto" class="nav-link">Contacto</a>
+      </nav>
+      <button class="cart-btn" onclick="abrirCarrito()">
+        🛒 Carrito <span class="cart-count" id="cart-count">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Stikers Personalizados</h1>
+      <p>Elegí tus favoritos de nuestros catálogos temáticos. Cada stiker es único, de alta calidad y resistente al agua.</p>
+      <a href="catalogo.html" class="btn-primary">Ver Catálogos</a>
+    </div>
+    <div class="hero-deco">
+      <span>🎨</span><span>⭐</span><span>🎬</span><span>😂</span><span>🦸</span><span>🎮</span>
+    </div>
+  </section>
+
+  <!-- CATEGORIAS -->
+  <section class="categorias-home">
+    <h2>Nuestros Catálogos</h2>
+    <p class="subtitle">Elegí tu temática favorita</p>
+    <div class="cat-grid">
+
+      <a href="catalogo.html?tema=urbano" class="cat-card">
+        <div class="cat-img urbano-bg">🏙️</div>
+        <div class="cat-info"><h3>Urbano</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=argento" class="cat-card">
+        <div class="cat-img argento-bg">🇦🇷</div>
+        <div class="cat-info"><h3>Argento</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=turismo" class="cat-card">
+        <div class="cat-img turismo-bg">✈️</div>
+        <div class="cat-info"><h3>Turismo</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=trap" class="cat-card">
+        <div class="cat-img trap-bg">🎤</div>
+        <div class="cat-info"><h3>Trap / Rap / Reggaeton</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=musica" class="cat-card">
+        <div class="cat-img musica-bg">🎵</div>
+        <div class="cat-info"><h3>Música</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=420" class="cat-card">
+        <div class="cat-img cuatro21-bg">🍃</div>
+        <div class="cat-info"><h3>420</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=futbol" class="cat-card">
+        <div class="cat-img futbol-bg">⚽</div>
+        <div class="cat-info"><h3>Fútbol</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=deportes" class="cat-card">
+        <div class="cat-img deportes-bg">🏅</div>
+        <div class="cat-info"><h3>Deportes</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=memes" class="cat-card">
+        <div class="cat-img memes-bg">😂</div>
+        <div class="cat-info"><h3>Memes</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=frases" class="cat-card">
+        <div class="cat-img frases-bg">💬</div>
+        <div class="cat-info"><h3>Frases</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=mascotas" class="cat-card">
+        <div class="cat-img mascotas-bg">🐾</div>
+        <div class="cat-info"><h3>Mascotas</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=varios" class="cat-card">
+        <div class="cat-img varios-bg">🌟</div>
+        <div class="cat-info"><h3>Varios</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=simpsons" class="cat-card">
+        <div class="cat-img simpsons-bg">🍩</div>
+        <div class="cat-info"><h3>Simpson</h3><p>30 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=cine" class="cat-card">
+        <div class="cat-img cine-bg">🎬</div>
+        <div class="cat-info"><h3>Cine</h3><p>30 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=series" class="cat-card">
+        <div class="cat-img series-bg">📺</div>
+        <div class="cat-info"><h3>Series</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=gamer" class="cat-card">
+        <div class="cat-img games-bg">🎮</div>
+        <div class="cat-info"><h3>Gamer</h3><p>30 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=anime" class="cat-card">
+        <div class="cat-img anime-bg">⚡</div>
+        <div class="cat-info"><h3>Anime</h3><p>30 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=girlspower" class="cat-card">
+        <div class="cat-img girlspower-bg">💪</div>
+        <div class="cat-info"><h3>Girls Power</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=infantilnene" class="cat-card">
+        <div class="cat-img infantilnene-bg">🚀</div>
+        <div class="cat-info"><h3>Infantil Nene</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=infantilnena" class="cat-card">
+        <div class="cat-img infantilnena-bg">🦄</div>
+        <div class="cat-info"><h3>Infantil Nena</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=superheroes" class="cat-card">
+        <div class="cat-img heroes-bg">🦸</div>
+        <div class="cat-info"><h3>Super Heroes</h3><p>30 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=naturaleza" class="cat-card">
+        <div class="cat-img nat-bg">🌿</div>
+        <div class="cat-info"><h3>Naturaleza</h3><p>30 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=halloween" class="cat-card">
+        <div class="cat-img halloween-bg">🎃</div>
+        <div class="cat-info"><h3>Halloween / Terror</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=cosmo" class="cat-card">
+        <div class="cat-img cosmo-bg">🔮</div>
+        <div class="cat-info"><h3>Cosmo / Religión</h3><p>15 stikers</p></div>
+      </a>
+
+      <a href="catalogo.html?tema=monocromaticos" class="cat-card">
+        <div class="cat-img mono-bg">🖤</div>
+        <div class="cat-info"><h3>Monocromáticos</h3><p>15 stikers</p></div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- PERSONALIZADOS -->
+  <section class="personalizados-home">
+    <div class="pers-home-inner">
+      <div class="pers-home-emoji">🎨</div>
+      <div class="pers-home-texto">
+        <h2>¿No encontrás lo que buscás?</h2>
+        <p>Hacemos stikers 100% personalizados con tu diseño, foto, logo o idea. ¡Consultanos sin compromiso!</p>
+      </div>
+      <a href="https://wa.me/5491124575207?text=%C2%A1Hola!%20Quiero%20hacer%20un%20stiker%20personalizado.%20%C2%BFMe%20pod%C3%A9s%20dar%20m%C3%A1s%20info%3F"
+         class="btn-personalizados-home" target="_blank">
+        Para personalizados<br/>hacer click acá 👉
+      </a>
+    </div>
+  </section>
+
+  <!-- INFO -->
+  <section class="info-strip">
+    <div class="info-item">✅ <strong>Alta calidad</strong><br/>Impresión premium</div>
+    <div class="info-item">💧 <strong>Resistentes</strong><br/>Impermeables</div>
+    <div class="info-item">🚀 <strong>Envío rápido</strong><br/>Todo el país</div>
+    <div class="info-item">🎨 <strong>Personalizados</strong><br/>Diseños únicos</div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section class="contacto" id="contacto">
+    <h2>Contacto</h2>
+    <p>¿Querés hacer un pedido o tenés alguna consulta?</p>
+    <div class="contacto-btns">
+      <a href="https://wa.me/5491124575207" class="btn-wa" target="_blank">📱 WhatsApp</a>
+      <a href="https://www.instagram.com/tecnostickers?igsh=MTFsc2h2dTl3dnZxYQ==" class="btn-ig" target="_blank">📸 Instagram</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 TecnoStikers — Todos los derechos reservados</p>
+  </footer>
+
+  <!-- PANEL CARRITO -->
+  <div class="cart-overlay" id="cart-overlay" onclick="cerrarCarrito()"></div>
+  <div class="cart-panel" id="cart-panel">
+    <div class="cart-header">
+      <h3>🛒 Tu Carrito</h3>
+      <button onclick="cerrarCarrito()" class="close-btn">✕</button>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <p class="cart-empty">Tu carrito está vacío</p>
+    </div>
+    <div class="cart-footer" id="cart-footer" style="display:none">
+      <div class="cart-total">Total: <strong id="cart-total">$0</strong></div>
+      <button class="btn-checkout" onclick="checkout()">Finalizar Pedido por WhatsApp</button>
+    </div>
+  </div>
+
+  <script src="datos-stikers.js"></script>
+  <script src="sheets-loader.js"></script>
+  <script src="carrito.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await cargarDatosDeSheets();
+      document.querySelectorAll('.cat-card').forEach(card => {
+        const tema = new URL(card.href).searchParams.get('tema');
+        if (tema && catalogos[tema]) {
+          const p = card.querySelector('.cat-info p');
+          if (p) p.textContent = catalogos[tema].stikers.length + ' stikers';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
