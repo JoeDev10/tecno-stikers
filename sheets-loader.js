@@ -2,8 +2,7 @@
 // El cliente solo necesita cambiar SHEETS_ID con el ID de su hoja de Google Sheets.
 // Si SHEETS_ID está vacío, la web usa los datos del archivo datos-stikers.js.
 
-const SHEETS_ID = '';
-// Ejemplo: const SHEETS_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms';
+const SHEETS_ID = '19Ovw9JC4pxJdH8Ixeq2fHDft-D5mIwzuT9Y0xPGZUN8';
 
 async function cargarDatosDeSheets() {
   if (!SHEETS_ID) return false;
