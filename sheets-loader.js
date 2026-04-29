@@ -1,18 +1,22 @@
 // ===== GOOGLE SHEETS LOADER =====
-// El cliente solo necesita cambiar SHEETS_ID con el ID de su hoja de Google Sheets.
-// Si SHEETS_ID está vacío, la web usa los datos del archivo datos-stikers.js.
+// Sheets usadas:
+//   "Precios"  → 4 columnas: material | 4x4 | 5x5 | 6x6
+//   "Imagenes" → 2 columnas: stiker_id | url
+//
+// Para agregar una foto: pegá el ID del stiker y el link de Imgur en la hoja "Imagenes".
+// El resto de los datos (nombres, emojis, categorías) vienen del archivo datos-stikers.js.
 
 const SHEETS_ID = '19Ovw9JC4pxJdH8Ixeq2fHDft-D5mIwzuT9Y0xPGZUN8';
 
 async function cargarDatosDeSheets() {
   if (!SHEETS_ID) return false;
   try {
-    const [dataStikers, dataPrecios] = await Promise.all([
-      fetchGSheet('Stikers'),
-      fetchGSheet('Precios')
+    const [dataPrecios, dataImagenes] = await Promise.all([
+      fetchGSheet('Precios'),
+      fetchGSheet('Imagenes')
     ]);
     aplicarPrecios(dataPrecios);
-    aplicarStikers(dataStikers);
+    aplicarImagenes(dataImagenes);
     return true;
   } catch (e) {
     console.warn('Google Sheets no disponible, usando datos locales.', e);
@@ -46,49 +50,23 @@ function aplicarPrecios(data) {
   });
 }
 
-function aplicarStikers(data) {
+function aplicarImagenes(data) {
   if (!data.table || !data.table.rows) return;
 
-  // Detectar qué categorías vienen en Sheets para solo tocar esas
-  const catsEnSheets = new Set();
+  // Construir mapa stiker_id → url para búsqueda rápida
+  const mapaImagenes = {};
   data.table.rows.forEach(row => {
-    const cat_id = row.c[0]?.v?.toString().trim();
-    if (cat_id) catsEnSheets.add(cat_id);
+    const id  = row.c[0]?.v?.toString().trim();
+    const url = row.c[1]?.v?.toString().trim();
+    if (id && url) mapaImagenes[id] = url;
   });
 
-  // Vaciar solo los catálogos que Sheets va a reemplazar
-  catsEnSheets.forEach(k => {
-    if (catalogos[k]) catalogos[k].stikers = [];
-  });
-
-  data.table.rows.forEach(row => {
-    const cat_id     = row.c[0]?.v?.toString().trim();
-    const cat_nombre = row.c[1]?.v?.toString().trim();
-    const cat_emoji  = row.c[2]?.v?.toString().trim();
-    const stiker_id  = row.c[3]?.v?.toString().trim();
-    const stiker_nom = row.c[4]?.v?.toString().trim();
-    const stiker_emo = row.c[5]?.v?.toString().trim();
-    const stiker_img = row.c[6]?.v?.toString().trim() || '';
-
-    if (!cat_id || !stiker_id) return;
-
-    if (!catalogos[cat_id]) {
-      catalogos[cat_id] = { nombre: cat_nombre, emoji: cat_emoji, color: cat_id + '-bg', stikers: [] };
-    } else {
-      catalogos[cat_id].nombre = cat_nombre;
-      catalogos[cat_id].emoji  = cat_emoji;
-    }
-
-    catalogos[cat_id].stikers.push({
-      id:     stiker_id,
-      nombre: stiker_nom,
-      emoji:  stiker_emo,
-      imagen: stiker_img
+  // Patchear la imagen en cada stiker del catálogo local
+  Object.values(catalogos).forEach(cat => {
+    cat.stikers.forEach(stiker => {
+      if (mapaImagenes[stiker.id]) {
+        stiker.imagen = mapaImagenes[stiker.id];
+      }
     });
-  });
-
-  // Eliminar solo los catálogos de Sheets que quedaron vacíos (removidos de la hoja)
-  catsEnSheets.forEach(k => {
-    if (catalogos[k] && catalogos[k].stikers.length === 0) delete catalogos[k];
   });
 }
