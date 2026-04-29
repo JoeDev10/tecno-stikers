@@ -9,18 +9,30 @@
 const SHEETS_ID = '19Ovw9JC4pxJdH8Ixeq2fHDft-D5mIwzuT9Y0xPGZUN8';
 
 async function cargarDatosDeSheets() {
-  if (!SHEETS_ID) return false;
+  await Promise.allSettled([
+    cargarPrecios(),
+    cargarFotos()
+  ]);
+}
+
+async function cargarPrecios() {
+  if (!SHEETS_ID) return;
   try {
-    const [dataPrecios, dataImagenes] = await Promise.all([
-      fetchGSheet('Precios'),
-      fetchGSheet('Imagenes')
-    ]);
-    aplicarPrecios(dataPrecios);
-    aplicarImagenes(dataImagenes);
-    return true;
+    const data = await fetchGSheet('Precios');
+    aplicarPrecios(data);
   } catch (e) {
-    console.warn('Google Sheets no disponible, usando datos locales.', e);
-    return false;
+    console.warn('No se pudieron cargar precios desde Sheets.', e);
+  }
+}
+
+async function cargarFotos() {
+  try {
+    const res = await fetch('fotos.json?t=' + Date.now());
+    if (!res.ok) return;
+    const mapa = await res.json();
+    aplicarImagenes(mapa);
+  } catch (e) {
+    console.warn('No se pudo cargar fotos.json.', e);
   }
 }
 
@@ -50,23 +62,11 @@ function aplicarPrecios(data) {
   });
 }
 
-function aplicarImagenes(data) {
-  if (!data.table || !data.table.rows) return;
-
-  // Construir mapa stiker_id → url para búsqueda rápida
-  const mapaImagenes = {};
-  data.table.rows.forEach(row => {
-    const id  = row.c[0]?.v?.toString().trim();
-    const url = row.c[1]?.v?.toString().trim();
-    if (id && url) mapaImagenes[id] = url;
-  });
-
-  // Patchear la imagen en cada stiker del catálogo local
+function aplicarImagenes(mapa) {
+  if (!mapa || typeof mapa !== 'object') return;
   Object.values(catalogos).forEach(cat => {
     cat.stikers.forEach(stiker => {
-      if (mapaImagenes[stiker.id]) {
-        stiker.imagen = mapaImagenes[stiker.id];
-      }
+      if (mapa[stiker.id]) stiker.imagen = mapa[stiker.id];
     });
   });
 }
