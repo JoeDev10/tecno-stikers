@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Tecno Stikers</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
+
+    /* SETUP TOKEN */
+    #setup-screen {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+    }
+    .setup-box {
+      background: white; border-radius: 16px; padding: 40px;
+      width: 100%; max-width: 460px; text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .setup-box h1 { font-size: 1.6rem; margin-bottom: 8px; }
+    .setup-box p  { color: #666; margin-bottom: 28px; font-size: 0.95rem; }
+    .setup-box input {
+      width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0;
+      border-radius: 10px; font-size: 1rem; margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .setup-box input:focus { outline: none; border-color: #e63946; }
+    .setup-box button {
+      width: 100%; padding: 14px; background: #e63946; color: white;
+      border: none; border-radius: 10px; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: background .2s;
+    }
+    .setup-box button:hover { background: #c1121f; }
+    .setup-error { color: #e63946; font-size: 0.9rem; margin-top: 12px; display: none; }
+
+    /* HEADER ADMIN */
+    .admin-header {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      color: white; padding: 20px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .admin-header h1 { font-size: 1.3rem; }
+    .admin-header span { font-size: 0.85rem; opacity: .7; }
+    .btn-save {
+      background: #e63946; color: white; border: none;
+      padding: 12px 28px; border-radius: 10px; font-size: 1rem;
+      font-weight: 700; cursor: pointer; transition: all .2s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn-save:hover:not(:disabled) { background: #c1121f; transform: scale(1.02); }
+    .btn-save:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* CATEGORIAS */
+    .main-content { padding: 28px 32px; max-width: 1100px; margin: 0 auto; }
+    .info-banner {
+      background: #e8f4fd; border-left: 4px solid #2196F3;
+      border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;
+      font-size: 0.9rem; color: #1565c0;
+    }
+    .categoria-bloque {
+      background: white; border-radius: 14px; margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden;
+    }
+    .categoria-header {
+      padding: 16px 22px; background: #f8f9fa;
+      border-bottom: 1px solid #eee;
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; user-select: none;
+    }
+    .categoria-header:hover { background: #f0f2f5; }
+    .categoria-emoji { font-size: 1.4rem; }
+    .categoria-nombre { font-weight: 700; font-size: 1rem; flex: 1; }
+    .categoria-count { font-size: 0.8rem; color: #888; }
+    .categoria-fotos { font-size: 0.8rem; color: #4caf50; font-weight: 600; }
+    .chevron { font-size: 0.8rem; color: #aaa; transition: transform .2s; }
+    .chevron.open { transform: rotate(180deg); }
+
+    .stikers-lista { padding: 8px 16px 16px; display: none; }
+    .stikers-lista.open { display: block; }
+
+    .stiker-fila {
+      display: grid; grid-template-columns: 60px 1fr auto;
+      align-items: center; gap: 14px;
+      padding: 10px 6px; border-bottom: 1px solid #f5f5f5;
+    }
+    .stiker-fila:last-child { border-bottom: none; }
+
+    .stiker-preview {
+      width: 52px; height: 52px; border-radius: 10px;
+      background: #f5f5f5; display: flex; align-items: center;
+      justify-content: center; font-size: 1.6rem;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .stiker-preview img {
+      width: 100%; height: 100%; object-fit: cover; border-radius: 10px;
+    }
+    .stiker-info { min-width: 0; }
+    .stiker-nombre { font-weight: 600; font-size: 0.95rem; }
+    .stiker-id { font-size: 0.75rem; color: #aaa; font-family: monospace; }
+
+    .url-wrap { display: flex; align-items: center; gap: 8px; width: 340px; }
+    .url-input {
+      flex: 1; padding: 10px 14px; border: 2px solid #e0e0e0;
+      border-radius: 8px; font-size: 0.88rem;
+      transition: border-color .2s;
+    }
+    .url-input:focus { outline: none; border-color: #e63946; }
+    .url-input.has-url { border-color: #4caf50; background: #f9fff9; }
+    .btn-clear {
+      background: none; border: none; color: #ccc; cursor: pointer;
+      font-size: 1.1rem; padding: 4px; line-height: 1;
+      display: none;
+    }
+    .btn-clear.visible { display: block; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px);
+      background: #333; color: white; padding: 14px 28px;
+      border-radius: 50px; font-weight: 600; z-index: 9999;
+      transition: transform .3s; pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.ok { background: #4caf50; }
+    .toast.err { background: #e63946; }
+
+    /* LOGOUT */
+    .btn-logout {
+      background: transparent; color: rgba(255,255,255,.5);
+      border: 1px solid rgba(255,255,255,.2); padding: 6px 14px;
+      border-radius: 8px; cursor: pointer; font-size: 0.8rem;
+    }
+    .btn-logout:hover { color: white; border-color: white; }
+  </style>
+</head>
+<body>
+
+<!-- PANTALLA DE ACCESO -->
+<div id="setup-screen">
+  <div class="setup-box">
+    <h1>🏷️ Admin Tecno Stikers</h1>
+    <p>Ingresá el token de GitHub para gestionar las fotos del catálogo.</p>
+    <input type="password" id="token-input" placeholder="Token de GitHub (ghp_...)" />
+    <button onclick="iniciarSesion()">Entrar</button>
+    <p class="setup-error" id="setup-error">Token incorrecto. Verificá e intentá de nuevo.</p>
+  </div>
+</div>
+
+<!-- PANEL ADMIN -->
+<div id="admin-panel" style="display:none">
+  <div class="admin-header">
+    <div>
+      <h1>🏷️ Panel de fotos</h1>
+      <span>Pegá el link de Imgur en cada stiker</span>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
+      <button class="btn-save" id="btn-guardar" onclick="guardarCambios()">
+        💾 Guardar cambios
+      </button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="info-banner">
+      📸 <strong>Cómo agregar una foto:</strong>
+      Subí la imagen a <a href="https://imgur.com/upload" target="_blank">Imgur</a>,
+      hacé click derecho en la imagen → "Copiar dirección de imagen", y pegala en el campo del stiker correspondiente.
+    </div>
+    <div id="catalogo-admin"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="datos-stikers.js"></script>
+<script>
+const REPO  = 'JoeDev10/tecno-stikers';
+const FILE  = 'fotos.json';
+
+let fotosActuales = {};
+let fileSHA       = '';
+let ghToken       = '';
+
+// ---- SESIÓN ----
+function iniciarSesion() {
+  const t = document.getElementById('token-input').value.trim();
+  if (!t) return;
+  ghToken = t;
+  localStorage.setItem('ts_admin_token', t);
+  verificarToken();
+}
+
+function cerrarSesion() {
+  localStorage.removeItem('ts_admin_token');
+  location.reload();
+}
+
+async function verificarToken() {
+  try {
+    const r = await ghFetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`);
+    if (!r.ok) throw new Error('token invalido');
+    const data = await r.json();
+    fileSHA = data.sha;
+    fotosActuales = JSON.parse(atob(data.content.replace(/\n/g, '')));
+    mostrarAdmin();
+  } catch {
+    document.getElementById('setup-error').style.display = 'block';
+    ghToken = '';
+  }
+}
+
+function mostrarAdmin() {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('admin-panel').style.display  = 'block';
+  renderCatalogo();
+}
+
+// ---- RENDER ----
+function renderCatalogo() {
+  const cont = document.getElementById('catalogo-admin');
+  cont.innerHTML = '';
+
+  Object.entries(catalogos).forEach(([key, cat]) => {
+    const conFoto = cat.stikers.filter(s => fotosActuales[s.id]).length;
+
+    const bloque = document.createElement('div');
+    bloque.className = 'categoria-bloque';
+    bloque.innerHTML = `
+      <div class="categoria-header" onclick="toggleCat('${key}')">
+        <span class="categoria-emoji">${cat.emoji}</span>
+        <span class="categoria-nombre">${cat.nombre}</span>
+        <span class="categoria-count">${cat.stikers.length} stikers</span>
+        ${conFoto ? `<span class="categoria-fotos">✅ ${conFoto} fotos</span>` : ''}
+        <span class="chevron" id="chev-${key}">▼</span>
+      </div>
+      <div class="stikers-lista" id="lista-${key}">
+        ${cat.stikers.map((s, i) => renderStiker(s, i + 1)).join('')}
+      </div>
+    `;
+    cont.appendChild(bloque);
+  });
+}
+
+function renderStiker(s, num) {
+  const url = fotosActuales[s.id] || '';
+  const imgHtml = url
+    ? `<img src="${url}" onerror="this.parentElement.textContent='${s.emoji}'">`
+    : s.emoji;
+  return `
+    <div class="stiker-fila" id="fila-${s.id}">
+      <div class="stiker-preview" id="prev-${s.id}">${imgHtml}</div>
+      <div class="stiker-info">
+        <div class="stiker-nombre">#${num} ${s.nombre}</div>
+        <div class="stiker-id">ID: ${s.id}</div>
+      </div>
+      <div class="url-wrap">
+        <input
+          type="url"
+          class="url-input ${url ? 'has-url' : ''}"
+          id="inp-${s.id}"
+          placeholder="https://i.imgur.com/..."
+          value="${url}"
+          oninput="actualizarUrl('${s.id}', this)"
+        />
+        <button class="btn-clear ${url ? 'visible' : ''}" id="clr-${s.id}" onclick="limpiarUrl('${s.id}')">✕</button>
+      </div>
+    </div>
+  `;
+}
+
+function toggleCat(key) {
+  const lista = document.getElementById('lista-' + key);
+  const chev  = document.getElementById('chev-' + key);
+  lista.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+// ---- INTERACCIÓN ----
+function actualizarUrl(id, input) {
+  const url = input.value.trim();
+  input.classList.toggle('has-url', !!url);
+  document.getElementById('clr-' + id).classList.toggle('visible', !!url);
+
+  const prev = document.getElementById('prev-' + id);
+  const stiker = Object.values(catalogos).flatMap(c => c.stikers).find(s => s.id === id);
+  if (url) {
+    prev.innerHTML = `<img src="${url}" onerror="this.parentElement.textContent='${stiker?.emoji || '?'}'">`;
+  } else {
+    prev.textContent = stiker?.emoji || '?';
+  }
+}
+
+function limpiarUrl(id) {
+  const inp = document.getElementById('inp-' + id);
+  inp.value = '';
+  actualizarUrl(id, inp);
+}
+
+// ---- GUARDAR ----
+async function guardarCambios() {
+  const btn = document.getElementById('btn-guardar');
+  btn.disabled = true;
+  btn.textContent = '⏳ Guardando...';
+
+  const nuevasFotos = {};
+  document.querySelectorAll('.url-input').forEach(inp => {
+    const id  = inp.id.replace('inp-', '');
+    const url = inp.value.trim();
+    if (url) nuevasFotos[id] = url;
+  });
+
+  const contenido = JSON.stringify(nuevasFotos, null, 2);
+  const b64 = btoa(unescape(encodeURIComponent(contenido)));
+
+  try {
+    const r = await ghFetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        message: 'Actualizar fotos desde panel admin',
+        content: b64,
+        sha: fileSHA
+      })
+    });
+
+    if (!r.ok) throw new Error(await r.text());
+
+    const data = await r.json();
+    fileSHA = data.content.sha;
+    fotosActuales = nuevasFotos;
+
+    toast('✅ ¡Fotos guardadas! Aparecen en el sitio en 1-2 minutos.', 'ok');
+    renderCatalogo();
+  } catch (e) {
+    toast('❌ Error al guardar. Verificá el token.', 'err');
+    console.error(e);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '💾 Guardar cambios';
+}
+
+function ghFetch(url, opts = {}) {
+  return fetch(url, {
+    ...opts,
+    headers: {
+      'Authorization': 'token ' + ghToken,
+      'Content-Type': 'application/json',
+      ...(opts.headers || {})
+    }
+  });
+}
+
+function toast(msg, tipo = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + tipo;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.className = 'toast', 4000);
+}
+
+// ---- INIT ----
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('ts_admin_token');
+  if (saved) {
+    ghToken = saved;
+    document.getElementById('token-input').value = saved;
+    verificarToken();
+  }
+  document.getElementById('token-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') iniciarSesion();
+  });
+});
+</script>
+</body>
+</html>
