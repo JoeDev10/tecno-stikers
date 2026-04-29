@@ -37,7 +37,7 @@ function fetchGSheet(hoja) {
 function aplicarPrecios(data) {
   if (!data.table || !data.table.rows) return;
   data.table.rows.forEach(row => {
-    const mat = row.c[0]?.v?.toString().trim().toLowerCase();
+    const mat = row.c[0]?.v?.toString().trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
     if (mat && PRECIOS[mat]) {
       if (row.c[1]?.v != null) PRECIOS[mat]['4x4'] = Number(row.c[1].v);
       if (row.c[2]?.v != null) PRECIOS[mat]['5x5'] = Number(row.c[2].v);
@@ -49,8 +49,17 @@ function aplicarPrecios(data) {
 function aplicarStikers(data) {
   if (!data.table || !data.table.rows) return;
 
-  // Vaciar stikers de todos los catálogos actuales
-  Object.keys(catalogos).forEach(k => { catalogos[k].stikers = []; });
+  // Detectar qué categorías vienen en Sheets para solo tocar esas
+  const catsEnSheets = new Set();
+  data.table.rows.forEach(row => {
+    const cat_id = row.c[0]?.v?.toString().trim();
+    if (cat_id) catsEnSheets.add(cat_id);
+  });
+
+  // Vaciar solo los catálogos que Sheets va a reemplazar
+  catsEnSheets.forEach(k => {
+    if (catalogos[k]) catalogos[k].stikers = [];
+  });
 
   data.table.rows.forEach(row => {
     const cat_id     = row.c[0]?.v?.toString().trim();
@@ -78,8 +87,8 @@ function aplicarStikers(data) {
     });
   });
 
-  // Eliminar catálogos que quedaron sin stikers (fueron removidos de la hoja)
-  Object.keys(catalogos).forEach(k => {
-    if (catalogos[k].stikers.length === 0) delete catalogos[k];
+  // Eliminar solo los catálogos de Sheets que quedaron vacíos (removidos de la hoja)
+  catsEnSheets.forEach(k => {
+    if (catalogos[k] && catalogos[k].stikers.length === 0) delete catalogos[k];
   });
 }

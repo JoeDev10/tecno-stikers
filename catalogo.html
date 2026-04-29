@@ -213,7 +213,7 @@
             `<div class="stiker-cat-label">${cat.nombre}</div>`;
 
           const imgHtml = stiker.imagen
-            ? `<img class="stiker-img" src="${stiker.imagen}" alt="${stiker.nombre}" onerror="this.outerHTML='<div class=\\'stiker-emoji\\'>${stiker.emoji}</div>'">`
+            ? `<img class="stiker-img" src="${stiker.imagen}" alt="${stiker.nombre.replace(/"/g,'&quot;')}" onerror="this.outerHTML='<div class=\\'stiker-emoji\\'>${stiker.emoji}</div>'">`
             : `<div class="stiker-emoji">${stiker.emoji}</div>`;
 
           card.innerHTML = `
@@ -256,7 +256,13 @@
 
       const emojiEl = document.getElementById('modal-emoji');
       if (imagen) {
-        emojiEl.innerHTML = `<img class="modal-img" src="${imagen}" alt="${nombre}" onerror="this.outerHTML='${emoji}'">`;
+        const img = document.createElement('img');
+        img.className = 'modal-img';
+        img.src = imagen;
+        img.alt = nombre;
+        img.onerror = function() { this.outerHTML = emoji; };
+        emojiEl.innerHTML = '';
+        emojiEl.appendChild(img);
       } else {
         emojiEl.textContent = emoji;
       }
